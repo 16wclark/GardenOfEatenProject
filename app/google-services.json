@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "406739672062",
+    "firebase_url": "https://gardenofeaten.firebaseio.com",
+    "project_id": "gardenofeaten",
+    "storage_bucket": "gardenofeaten.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406739672062:android:a89215617b36af1f6b3eaf",
+        "android_client_info": {
+          "package_name": "com.example.gardenofeatenproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "406739672062-9648hj2tdaovq2e8rd3n9d8ai1vc5mlq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6smzqTg6LnwkY5zhDMmQc_Z3PIA5zIDI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "406739672062-9648hj2tdaovq2e8rd3n9d8ai1vc5mlq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
