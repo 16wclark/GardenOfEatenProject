@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -40,7 +41,9 @@ import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -79,9 +82,7 @@ import com.yelp.fusion.client.models.Reviews;
 import com.yelp.fusion.client.models.SearchResponse;
 
 
-
-
-
+import com.google.firebase.database.*;
 
 
 import android.content.pm.PackageManager;
@@ -111,7 +112,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SignInButton mSignInButton;
     private FirebaseAuth mAuth;
     private ImageView mProfilePic;
-
+    private FirebaseDatabase database;
+    private DatabaseReference mDatabase;
+    private static final String USERS = "users";
+    private User currentUser;
+    private List<String> visitedPlaces[];
 
     public double mLat;
     public double mLong;
@@ -140,16 +145,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         findViewById(R.id.sign_in_button).setOnClickListener((view) -> { signIn(); });
 
         mTextView = findViewById(R.id.mTextId);
-
         //mProfilePic = (ImageView)findViewById(R.id.profilePic);
         mButton = findViewById(R.id.mainButton);
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         updateRestaraunts();
 
 
+        //database = FirebaseDatabase.getInstance();
+        //mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
         mAuth = FirebaseAuth.getInstance();
-
-
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -282,18 +286,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void updateUI(FirebaseUser user) {
 
         if (user != null) {
-
+           // String keyid = mDatabase.push().getKey();
                 String name = user.getDisplayName();
                 String email = user.getEmail();
-                Uri photoUrl = user.getPhotoUrl();
-                mTextView.setText(photoUrl.toString());
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUrl);
-                   mProfilePic.setImageBitmap(bitmap);
+            //final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            mDatabase = FirebaseDatabase.getInstance().getReference("users").push();
+            mDatabase.child("email").setValue("w");
+           /* DatabaseReference ref = database.getReference("server/saving-data/fireblog");
+            //DatabaseReference postsRef = ref.child("posts");
+            mDatabase = ref.child("posts");
+            DatabaseReference mNewDatabase = mDatabase.push();
+            User a = new User("w", visitedPlaces);
+            mNewDatabase.setValue(a);
+*/
+//visitedNodes[0] = "w";
+            //visitedNodes[0] = "r";
+           // currentUser = new User(email, visitedNodes);
+            //List nodeConvert = new ArrayList<String>(Arrays.asList(visitedNodes));
 
-                }catch(IOException e){
-                        e.printStackTrace();
-                    }
+
+            //mTextView.setText(photoUrl.toString())
+
+                mTextView.setText("Logged in as" + name);
+                //mDatabase.child("users").child(keyid).setValue(currentUser);
+                 //mDatabase.child("users").child(user.getUid()).setValue(currentUser); //adding user info to database
+            //mDatabase.push().setValue(currentUser);
 
 
             // Check if user's email is verified
