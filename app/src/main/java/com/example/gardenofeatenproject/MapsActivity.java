@@ -160,6 +160,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         seekBar();
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("message");
+
+        myRef.setValue("Hello, World!");
+
 
 
         class returnRestaraunt extends AsyncTask<String, String, String> {
@@ -286,12 +291,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void updateUI(FirebaseUser user) {
 
         if (user != null) {
-           // String keyid = mDatabase.push().getKey();
                 String name = user.getDisplayName();
                 String email = user.getEmail();
+
+
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("user");
+            User a = new User("v", visitedPlaces);
+            myRef.setValue(a);
+            email = email.replaceAll("\\.", ",");
+            //String key = myRef.push().getKey();
+
+            myRef.child(email.toString()).setValue(a);
+
+
+
+
+
+
             //final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            mDatabase = FirebaseDatabase.getInstance().getReference("users").push();
-            mDatabase.child("email").setValue("w");
+            //mDatabase = FirebaseDatabase.getInstance().getReference("users").push();
+            //mDatabase.child("email").setValue("w");
            /* DatabaseReference ref = database.getReference("server/saving-data/fireblog");
             //DatabaseReference postsRef = ref.child("posts");
             mDatabase = ref.child("posts");
@@ -309,7 +330,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 mTextView.setText("Logged in as" + name);
                 //mDatabase.child("users").child(keyid).setValue(currentUser);
-                 //mDatabase.child("users").child(user.getUid()).setValue(currentUser); //adding user info to database
+                 // mDatabase.child("users").child(user.getUid()).setValue(currentUser); //adding user info to database
             //mDatabase.push().setValue(currentUser);
 
 
