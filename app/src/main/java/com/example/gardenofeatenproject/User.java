@@ -10,31 +10,31 @@ import java.util.List;
 
 public class User {
 
-    private String email;
-    private List<String> visitedPlaces[];
+    private String name;
+    private List<String> visitedPlaces;
 
     public User() {
     }
 
-    public List<String>[] getVisitedPlaces() {
+    public List<String> getVisitedPlaces() {
         return visitedPlaces;
     }
 
-    public void setVisitedPlaces(List<String>[] visitedPlaces) {
+    public void setVisitedPlaces(List<String> visitedPlaces) {
         this.visitedPlaces = visitedPlaces;
     }
 
-    public User(String email, List<String> visitedPlaces[]) {
+    public User(String name, List<String> visitedPlaces) {
         this.visitedPlaces = visitedPlaces;
-        this.email = email;
+        this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getname() {
+        return name;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setname(String email) {
+        this.name = email;
     }
 
 

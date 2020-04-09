@@ -116,7 +116,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference mDatabase;
     private static final String USERS = "users";
     private User currentUser;
-    private List<String> visitedPlaces[];
+    private List<String> visitedPlaces;
+    private DatabaseReference usersRef;
 
     public double mLat;
     public double mLong;
@@ -162,8 +163,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("message");
+        DatabaseReference usersRef;
+        //myRef.setValue("Hello, World!");
 
-        myRef.setValue("Hello, World!");
+
 
 
 
@@ -295,17 +298,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String email = user.getEmail();
 
 
-
+            //userEnter.put(email, "ea");
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("user");
+            visitedPlaces = new ArrayList<>();
+            visitedPlaces.add ("3");
             User a = new User("v", visitedPlaces);
-            myRef.setValue(a);
+            //myRef.setValue(a);
             email = email.replaceAll("\\.", ",");
+            email = "dum";
             //String key = myRef.push().getKey();
 
-            myRef.child(email.toString()).setValue(a);
+            //myRef.child(email).setValue(a);
+            Map<String, Object> userEnter = new HashMap<>();
+            userEnter.put(email + "/data", a);
+            DatabaseReference usersRef = myRef.child("users");
 
-
+            usersRef.updateChildren(userEnter);
 
 
 
