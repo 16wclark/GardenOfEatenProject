@@ -90,7 +90,7 @@ import android.content.pm.PackageManager;
 import org.json.JSONObject;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMarkerClickListener  {
 
     final static String tag = "MapsActivity";
     private GoogleMap mMap;
@@ -159,7 +159,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        seekBar();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("message");
@@ -226,29 +225,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void seekBar(){
-        mVisibleBusinesses = findViewById((R.id.simpleSeekBar));
-        //mTextView.setText("Visible Businesses: " + mVisibleBusinesses.getProgress() + "/" + mVisibleBusinesses.getMax());
 
-
-
-        mVisibleBusinesses.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progressChangedValue;
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                progressChangedValue = progress;
-
-            }
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-            }
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                mTextView.setText("Visible Businesses: " + String.valueOf(progressChangedValue) + "/" + mVisibleBusinesses.getMax());
-            }
-
-        });
-    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -306,7 +283,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             User a = new User("v", visitedPlaces);
             //myRef.setValue(a);
             email = email.replaceAll("\\.", ",");
-            email = "dum";
+           // email = "username";
             //String key = myRef.push().getKey();
 
             //myRef.child(email).setValue(a);
@@ -461,7 +438,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
         LatLng currentLoc = new LatLng(mLat, mLong);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLoc, 3));
-
+        mMap.setOnMarkerClickListener(this);
         assembleMap();
     }
 
@@ -575,53 +552,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         return businessName;
     }
-    public void markerUpdate(String names[], double[] latitude, double[] longitude){
+    public void markerUpdate(){
         int counter = 0;
         for (LatLng point : latlngs) {
             options.position(point);
             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_cube));
-            counter++;
+            options.title(names.get(counter));
             //options.title(names[counter]);
             mMap.addMarker(options);
+            counter++;
         }
         counter = 0;
-        LatLng location1 = new LatLng(latitude[0], longitude[0]);
-        /*
-        LatLng location2 = new LatLng(latitude[1], longitude[1]);
-        LatLng location3 = new LatLng(latitude[2], longitude[2]);
-        //mTextView.setText(Double.toString(latitude[1]) + " + " + Double.toString(longitude[1    ]));
 
-        mMarker1 = mMap.addMarker(new MarkerOptions()
-                .position(location1)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_cube))
-                .title(names[0]));
 
-        mMarker2 = mMap.addMarker(new MarkerOptions()
-                .position(location2)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_cube))
-                .title(names[1]));
-
-        mMarker3 = mMap.addMarker(new MarkerOptions()
-                .position(location3)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_cube))
-                .title(names[2])); */
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(location1));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latlngs.get(1)));
 
     }
     public void assembleMap(){
-        double currentLat = mLat;
-        double currentLong = mLong;
         populateLatLng(mLat, mLong);
-        double[] longitudes = new double[3];
-        double[] latitudes = new double[3];
-        String[] names = new String[3];
-        for(int i = 0; i  <= 2; i++){
-            longitudes[i] = returnLong(i, currentLat, currentLong);
-            latitudes[i] = returnLat(i, currentLat, currentLong);
-            names[i] = returnName(i, currentLat, currentLong);
-        }
-        markerUpdate(names, latitudes, longitudes);
+        markerUpdate();
     }
 
     @Override
@@ -631,6 +580,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mCurrentLocation = location;
     }
 
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+        // Retrieve the data from the marker.
+        Integer clickCount = (Integer) marker.getTag();
+        mTextView.setText(marker.getTitle());
+
+        // Check if a click count was set, then display the click count.
+        if (clickCount != null) {
+            clickCount = clickCount + 1;
+            marker.setTag(clickCount);
+            Toast.makeText(this,
+                    marker.getTitle() +
+                            " has been clicked " + clickCount + " times.",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        // Return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false;
+    }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
@@ -708,3 +679,8 @@ https://stackoverflow.com/questions/30569854/adding-multiple-markers-in-google-m
 //Save and display places visited
 //Use array
 //Testing
+
+
+//Check into restaraunts
+//save to firebase
+// indicate where you have been

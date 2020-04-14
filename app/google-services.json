@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "406739672062-rin30qheuq95b989mubob1m43qt574to.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gardenofeatenproject",
+            "certificate_hash": "03c46d83e3359f92e8a47aae102527fa2242b7db"
+          }
+        },
+        {
           "client_id": "406739672062-9648hj2tdaovq2e8rd3n9d8ai1vc5mlq.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -28,7 +36,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "406739672062-9648hj2tdaovq2e8rd3n9d8ai1vc5mlq.apps.googleusercontent.com",
+              "client_id": "406739672062-04vosungn76p0h7m1miq74e7lhemcecp.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
