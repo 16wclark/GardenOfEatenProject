@@ -100,32 +100,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static GoogleApiClient mGoogleApiClient;
 
     private TextView mTextView;
-    private Button mButton;
-    private Marker mMarker1;
-    private Marker mMarker2;
-    private Marker mMarker3;
-    private SeekBar mVisibleBusinesses;
+    private TextView mPlace;
     private MarkerOptions options = new MarkerOptions();
     private ArrayList<String> names = new ArrayList<>();
     private ArrayList<String> nameID = new ArrayList<>();
     private ArrayList<LatLng> latlngs = new ArrayList<>();
     private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 9001;
-    private SignInButton mSignInButton;
     private FirebaseAuth mAuth;
-    private ImageView mProfilePic;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-    private static final String USERS = "users";
-    private User currentUser;
     private List<String> visitedPlaces = new ArrayList<>();
-    private DatabaseReference usersRef;
     private String currentPlace;
+    private boolean signedIn;
     public double mLat;
     public double mLong;
     public FirebaseUser userFirebase;
     public boolean firstCall = true;
-    Map<String, Object> allData = new HashMap<>();
 
 
 
@@ -154,93 +143,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         findViewById(R.id.buttonPush).setOnClickListener((view) -> { updateUI(userFirebase); });
 
         mTextView = findViewById(R.id.mTextId);
-        //mProfilePic = (ImageView)findViewById(R.id.profilePic);
-        mButton = findViewById(R.id.mainButton);
+        mPlace = findViewById(R.id.mPlace);
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         updateRestaraunts();
 
 
-        //database = FirebaseDatabase.getInstance();
-        //mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
         mAuth = FirebaseAuth.getInstance();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
-        DatabaseReference usersRef;
-        //myRef.setValue("Hello, World!");
-
-
-
-
-
-        class returnRestaraunt extends AsyncTask<String, String, String> {
-            TextView txt;
-
-            @Override
-            protected void onPreExecute() {
-                // Set the variable txtView here, after setContentView on the dialog
-                // has been called! use dialog.findViewById().
-                txt = findViewById(R.id.mTextId);
-            }
-            @Override
-            protected String doInBackground(String... strings) {
-
-                Call<Business> call = yelpFusionApi.getBusiness("restaurant");
-                call.enqueue(callback);
-                Response<Business> response = null;
-                try {
-                    response = call.execute();
-
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-
-                Business business = response.body();
-
-                String businessName = business.getName();  // "JapaCurry Truck"
-                Double rating = business.getRating();
-                runOnUiThread(new Runnable() {
-                                  @Override
-                                  public void run() {
-
-                                      Toast.makeText(getApplicationContext(),"Hello Javatpoint",Toast.LENGTH_SHORT).show();
-
-                                      txt.setText("HI");
-                                  }
-                              });
-
-                return null;
-
-
-            }
-
-
-        }
-
-
-
-
-
     }
 
     private void signIn() {
-        markerUpdate();
+
+
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
-
-
+        if(!signedIn)
+            visitedPlaces.clear();
+        signedIn = true;
+        markerUpdate();
     }
 
     private void visitedPlace() {
-        visitedPlaces.add(currentPlace);
-        mTextView.setText(visitedPlaces.toString());
+        if (!visitedPlaces.contains(currentPlace)) {
+            visitedPlaces.add(currentPlace);
+            mPlace.setText(visitedPlaces.toString());
+        }
         markerUpdate();
-
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -261,8 +195,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        // [START_EXCLUDE silent]
-        // [END_EXCLUDE]
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -273,15 +205,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             // Sign in success, update UI with the signed-in user's information
                             userFirebase = mAuth.getCurrentUser();
                             loginUpdate(userFirebase);
-                            //updateUI(user);
                         } else {
-                            // If sign in fails, display a message to the user.
-                            //updateUI(null);
                         }
-
-
-                        // [START_EXCLUDE]
-                        // [END_EXCLUDE]
                     }
                 });
     }
@@ -295,53 +220,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String email = user.getEmail();
 
 
-            //userEnter.put(email, "ea");
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("RegisteredUsers");
-            //myRef.setValue(a);
             final String emailFinal = email.replaceAll("\\.", ",");
-           // email = "username";
-            //String key = myRef.push().getKey();
-            //myRef.child(email).setValue(a);
             Map<String, Object> userEnter = new HashMap<>();
             User a = new User(visitedPlaces);
             userEnter.put(emailFinal, a);
             DatabaseReference usersRef = myRef.child("users");
             a.setVisitedPlaces(visitedPlaces);
             usersRef.updateChildren(userEnter);
-            //final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            //mDatabase = FirebaseDatabase.getInstance().getReference("users").push();
-            //mDatabase.child("email").setValue("w");
-           /* DatabaseReference ref = database.getReference("server/saving-data/fireblog");
-            //DatabaseReference postsRef = ref.child("posts");
-            mDatabase = ref.child("posts");
-            DatabaseReference mNewDatabase = mDatabase.push();
-            User a = new User("w", visitedPlaces);
-            mNewDatabase.setValue(a);
-*/
-//visitedNodes[0] = "w";
-            //visitedNodes[0] = "r";
-           // currentUser = new User(email, visitedNodes);
-            //List nodeConvert = new ArrayList<String>(Arrays.asList(visitedNodes));
-
-
-            //mTextView.setText(photoUrl.toString())
-
                 mTextView.setText("Logged in as" + name);
-                //mDatabase.child("users").child(keyid).setValue(currentUser);
-                 // mDatabase.child("users").child(user.getUid()).setValue(currentUser); //adding user info to database
-            //mDatabase.push().setValue(currentUser);
-
-
-            // Check if user's email is verified
-                boolean emailVerified = user.isEmailVerified();
-
-                // The user's ID, unique to the Firebase project. Do NOT use this value to
-                // authenticate with your backend server, if you have one. Use
-                // FirebaseUser.getIdToken() instead.
-                String uid = user.getUid();
-
-
         } else {
 
         }
@@ -349,10 +237,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void loginUpdate(FirebaseUser user) {
         if (user != null) {
-            String name = user.getDisplayName();
             String email = user.getEmail();
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("RegisteredUsers");
             final String emailFinal = email.replaceAll("\\.", ",");
             DatabaseReference myRef2 = database.getReference("RegisteredUsers/users/" + emailFinal);
 
@@ -364,16 +250,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if(firstCall) {
                         GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
                         };
-                        //Map<String, Object> newPost = (Map<String, Object>) snapshot.getValue();
                         ArrayList<String> allData = (ArrayList) snapshot.getValue(t);
-                        //System.out.println("Author: " + newPost.get);
-                        //System.out.println("Title: " + newPost.get(emailFinal));
-                        //allData.putAll(newPost);
                         System.out.println("Titl1e: " + allData);
-                        // Object a = allData.get(emailFinal);
-                        //System.out.println("Title: " + a);
-
-                        // User temp = allData.values();
                         visitedPlaces = allData;
                         firstCall = false;
                         markerUpdate();
@@ -401,17 +279,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
         }
     }
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
-            // Signed in successfully, show authenticated UI.
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w("failedconnect" , "signInResult:failed code=" + e.getStatusCode());
-        }
-    }
 
 
     public void onClick(View v) {
@@ -426,7 +294,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onStart(){
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         super.onStart();
         if(this.mGoogleApiClient != null){
             this.mGoogleApiClient.connect();
@@ -451,27 +318,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
 
     }
-    Callback<Business> callback = new Callback<Business>() {
-        @Override
-        public void onResponse(Call<Business> call, Response<Business> response) {
-            Business business = response.body();
-            // Update UI text with the Business object.
-        }
-        @Override
-        public void onFailure(Call<Business> call, Throwable t) {
-            // HTTP error happened, do something to handle it.
-        }
-    };
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+
     private void getCurrentLocation(){
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
@@ -492,8 +340,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             double longitude =
                                     locationResult.getLocations().get(latestLocationIndex).getLongitude();
                             mLong = longitude;
-                            //mTextView.setText(Double.toString(longitude) + " + " + Double.toString(latitude));
-
                         }
                     }
                 }, Looper.getMainLooper());
@@ -512,6 +358,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+
+
     public void updateRestaraunts(){
         Map<String, String> params = new HashMap<>();
         params.put("term", "restaurants");
@@ -520,22 +368,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
         SearchResponse searchResponse;
         String businessName = "empty";
-        Double rating = 0.0;
-        Double distance = 0.0;
         try {
             searchResponse = call.execute().body();
-            int totalNumberOfResult = searchResponse.getTotal();  // 3
             ArrayList<Business> businesses = searchResponse.getBusinesses();
-            businessName = businesses.get(0).getCoordinates().toString();  // "JapaCurry Truck"
-            rating = businesses.get(0).getRating();
-
-            distance = businesses.get(0).getDistance();// 4.0
-
         } catch(Exception ex)
         { }
 
-
-        //mTextView.setText("Name: " + businessName + "\n Rating: " + rating + "\n Distance: " + distance);
     }
     public void populateLatLng(double currentLat, double currentLong) {
         latlngs.clear();
@@ -569,62 +407,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-        public double returnLat(int businessNum, double baseLatitude, double baseLongitude){
-            double latitude = 0;
-            Map<String, String> params = new HashMap<>();
-            params.put("latitude", Double.toString(baseLatitude));
-            params.put("longitude", Double.toString(baseLongitude));
-            Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
-            SearchResponse searchResponse;
 
-            try {
-                searchResponse = call.execute().body();
-                int totalNumberOfResult = searchResponse.getTotal();  // 3
-                ArrayList<Business> businesses = searchResponse.getBusinesses();
-                latitude = businesses.get(businessNum).getCoordinates().getLatitude();
-            } catch(Exception ex)
-            { }
 
-            return latitude;
-        }
-        public double returnLong(int businessNum, double baseLatitude, double baseLongitude){
-            double longitude = 0;
-
-            Map<String, String> params = new HashMap<>();
-            params.put("latitude", Double.toString(baseLatitude));
-            params.put("longitude", Double.toString(baseLongitude));
-            Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
-            SearchResponse searchResponse;
-
-            try {
-                searchResponse = call.execute().body();
-                int totalNumberOfResult = searchResponse.getTotal();  // 3
-                ArrayList<Business> businesses = searchResponse.getBusinesses();
-                longitude = businesses.get(businessNum).getCoordinates().getLongitude();
-            } catch(Exception ex)
-            { }
-            //mTextView.setText(Double.toString(longitude));
-
-            return longitude;
-        }
-        public String returnName(int businessNum, double baseLatitude, double baseLongitude){
-            String businessName = "error";
-
-            Map<String, String> params = new HashMap<>();
-            params.put("latitude", Double.toString(baseLatitude));
-        params.put("longitude", Double.toString(baseLongitude));
-        Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
-        SearchResponse searchResponse;
-
-        try {
-            searchResponse = call.execute().body();
-            ArrayList<Business> businesses = searchResponse.getBusinesses();
-            businessName = businesses.get(businessNum).getName();
-        } catch(Exception ex)
-        { }
-
-        return businessName;
-    }
     public void markerUpdate(){
         int counter = 0;
         mMap.clear();
@@ -662,7 +446,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Retrieve the data from the marker.
         Integer clickCount = (Integer) marker.getTag();
-        mTextView.setText(marker.getTitle());
         currentPlace = marker.getTitle();
 
 
@@ -676,9 +459,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Toast.LENGTH_SHORT).show();
         }
 
-        // Return false to indicate that we have not consumed the event and that we wish
-        // for the default behavior to occur (which is for the camera to move such that the
-        // marker is centered and for the marker's info window to open, if it has one).
         return false;
     }
 
@@ -708,7 +488,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location inputLocation) {
-                        //location = inputLocation;
                         if (inputLocation != null) {
                         }
                     }
